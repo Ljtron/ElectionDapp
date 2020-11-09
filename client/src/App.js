@@ -4,11 +4,16 @@ import getWeb3 from "./getWeb3";
 import { Button, Navbar, Nav, Form, FormControl } from 'react-bootstrap';
 
 import "./App.css";
+import customData from "./candidates.json";
+import Candidates from "./components/candidatesComponent"
+import Index from "./components/index"
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = { storageValue: 0, web3: null, accounts: null, contract: null, candidates: null, page: 0 };
 
   componentDidMount = async () => {
+    console.log("The json data: ")
+    console.dir(customData)
     try {
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
@@ -37,6 +42,7 @@ class App extends Component {
   };
 
   runExample = async () => {
+    console.log("The json data: " + customData)
     const { accounts, contract } = this.state;
 
     // Stores a given value, 5 by default.
@@ -49,6 +55,37 @@ class App extends Component {
     this.setState({ storageValue: response });
   };
 
+  screen(){
+    if(this.state.page === 0){
+      return (
+        <Index storageValue = {this.state.storageValue}/>
+      );
+    }
+    else if(this.state.page === 1){
+      return(
+        <Candidates data = {customData}/>
+      )
+    }
+  }
+
+  changeScreen(number){
+    if(number === 0 && this.state.page !== 0){
+      this.setState({
+        state: number
+      })
+    }
+    else if(number === 1 && this.state.page !== 1){
+      this.setState({
+        state: number
+      })
+    }
+    else if(number === 2 && this.state.page !== 2){
+      this.setState({
+        state: number
+      })
+    }
+  }
+
   render() {
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
@@ -58,22 +95,13 @@ class App extends Component {
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="#home">Election</Navbar.Brand>
           <Nav className="mr-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#Canditates">Canditates</Nav.Link>
-            <Nav.Link href="#votingBooth">Voting Booth</Nav.Link>
+          <Nav.Link href="#home">Home</Nav.Link>
+            {/* <Nav.Link href="#home"><h4 onClick={this.changeScreen(0)}>Home</h4></Nav.Link>
+            <Nav.Link href="#Canditates"><h4 onClick={this.changeScreen(1)}>Canditates</h4></Nav.Link>
+            <Nav.Link href="#votingBooth"><h4 onClick={this.changeScreen(2)}>Voting Booth</h4></Nav.Link> */}
           </Nav> 
         </Navbar>
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <Candidates data = {customData}/>
       </div>
     );
   }
