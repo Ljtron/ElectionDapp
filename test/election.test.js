@@ -35,8 +35,9 @@ contract("Election contract test", (accounts) => {
 
             // checks if the candidate was voted for
             var candidates = await electionInstance.candidates(0);
-            //console.log(candidates);
-            assert.equal(candidates.votes.words[0], 1, "The candidate didn't get voted for")
+            var candidates = await electionInstance.getCandidatesVote(0)
+            console.log(candidates);
+            assert.equal(candidates, 1, "The candidate didn't get voted for")
         })
 
         it("The account can't vote twice", async() => {

@@ -1,16 +1,18 @@
 import React, { Component } from "react";
 import SimpleStorageContract from "./contracts/SimpleStorage.json";
+import ElectionContract from "./contracts/Election.json"
 import getWeb3 from "./getWeb3";
 import { Button, Navbar, Nav, Form, FormControl } from 'react-bootstrap';
 
 import "./App.css";
 import customData from "./candidates.json";
 import Candidates from "./components/candidatesComponent"
+import WinnerComponent from "./components/winnerComponent"
 import Index from "./components/index"
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null, candidates: null, page: 0 };
-
+  state = { storageValue: 0, web3: null, accounts: null, contract: null, candidates: null, winner:false };
+  stats ={}
   componentDidMount = async () => {
     console.log("The json data: ")
     console.dir(customData)
@@ -23,9 +25,9 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
+      const deployedNetwork = ElectionContract.networks[networkId];
       const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
+        ElectionContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
 
@@ -55,35 +57,22 @@ class App extends Component {
     this.setState({ storageValue: response });
   };
 
-  screen(){
-    if(this.state.page === 0){
-      return (
-        <Index storageValue = {this.state.storageValue}/>
-      );
-    }
-    else if(this.state.page === 1){
-      return(
-        <Candidates data = {customData}/>
-      )
-    }
-  }
+  winner = async() => {
+    const{accounts, contract} = this.state
 
-  changeScreen(number){
-    if(number === 0 && this.state.page !== 0){
-      this.setState({
-        state: number
+    // Get each candidate vote
+    for(var i=0; i<customData.candidates.length; i++){
+      console.log(customData.candidates[i])
+      // var res = await contract.methods.candidates(customData.candidates[i].id).call();
+      var res = await contract.methods.getCandidatesVote(customData.candidates[i].id).call({
+        from: accounts[0]
       })
+      this.stats[i] = res;
     }
-    else if(number === 1 && this.state.page !== 1){
-      this.setState({
-        state: number
-      })
-    }
-    else if(number === 2 && this.state.page !== 2){
-      this.setState({
-        state: number
-      })
-    }
+    console.log(this.stats)
+    this.setState({
+      winner: true
+    })
   }
 
   render() {
@@ -96,12 +85,16 @@ class App extends Component {
           <Navbar.Brand href="#home">Election</Navbar.Brand>
           <Nav className="mr-auto">
           <Nav.Link href="#home">Home</Nav.Link>
+          <Button class="btn btn-outline-success" onClick={this.winner} active>Get Winner</Button>
             {/* <Nav.Link href="#home"><h4 onClick={this.changeScreen(0)}>Home</h4></Nav.Link>
             <Nav.Link href="#Canditates"><h4 onClick={this.changeScreen(1)}>Canditates</h4></Nav.Link>
             <Nav.Link href="#votingBooth"><h4 onClick={this.changeScreen(2)}>Voting Booth</h4></Nav.Link> */}
           </Nav> 
         </Navbar>
         <Candidates data = {customData}/>
+        {
+          this.state.winner == true? <WinnerComponent stats={this.stats}/>: null
+        }
       </div>
     );
   }

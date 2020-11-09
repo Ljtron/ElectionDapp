@@ -56,6 +56,10 @@ contract Election{
         pollsClosed = true;
     }
 
+    function getCandidatesVote(uint _id) public view returns(uint){
+        return candidates[_id].votes;
+    }
+
     // function getAllCandidates() public view returns(Candidate[] memory){
     //     return(allCandidates);
     // }

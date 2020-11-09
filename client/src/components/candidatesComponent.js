@@ -27,7 +27,7 @@ class Candidates extends Component{
         return(
             <div>
                 {this.props.data.candidates.map((user) => (
-                    <Candidate person={user}/>
+                    <Candidate person={user} key={user.name}/>
                     //<h1>{user.name}</h1>
                     // <User
                     //     name={`${user.name.first} ${user.name.last}`}
